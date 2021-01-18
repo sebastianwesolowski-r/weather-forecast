@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import {ReactComponent as CloudBig} from '../assets/icons/cloud-big.svg';
 import {ReactComponent as CloudSmall} from '../assets/icons/cloud-small.svg';
 
-import {SetLocationFunction} from '../App';
+import {SetLocationFunction} from '../types';
 
 const LandingPageContainer = styled.div`
     display: flex;
@@ -84,23 +84,17 @@ interface LandingPageProps {
 
 const LandingPage = ({setUserLocation}: LandingPageProps) => {
 
-    let geoUserLocation: Object;
-    let localisationStatus: "Loading" | "Done";
-
     const localisationSuccess = (position: any) => {
         const {latitude, longitude} = position.coords;
         setUserLocation({latitude, longitude});
     }
 
-    const locationFailure = () => localisationStatus = "Done";
+    const locationFailure = () => {
+        setUserLocation({latitude: undefined, longitude: undefined});
+    };
 
     const geoFindUser = () => {
-        localisationStatus = "Loading";
-        if(!navigator.geolocation) {
-            localisationStatus = "Done";
-        } else {
-            navigator.geolocation.getCurrentPosition(localisationSuccess, locationFailure);
-        }
+        navigator.geolocation.getCurrentPosition(localisationSuccess, locationFailure);
     }
 
     return (
@@ -114,9 +108,7 @@ const LandingPage = ({setUserLocation}: LandingPageProps) => {
                     <h1>Check the <span>weather</span> in your city</h1>
                     <p>Keep track of forecast in your city using <a href="https://sw-weather.netlify.app">weather app</a></p>
                 </Title>
-                <StartButton onClick={geoFindUser}>
-                    Get Started
-                </StartButton>
+                <StartButton onClick={geoFindUser}>Get Started</StartButton>
                 <Annotation>
                     *  You will be asked for location permission
                 </Annotation>

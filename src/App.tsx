@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {Route, Switch} from 'react-router-dom';
+import React, {useState, useEffect} from 'react';
+import {Route, Switch, withRouter} from 'react-router-dom';
 import {createGlobalStyle} from 'styled-components';
 import styled from 'styled-components';
 
@@ -7,6 +7,8 @@ import ComfortaaFont from './assets/fonts/Comfortaa-VariableFont_wght.ttf';
 
 import LandingPage from './pages/landing-page';
 import WeatherPage from './pages/weather-page';
+
+import {UserLocationObject, SetLocationFunction} from './types';
 
 const GlobalStyle = createGlobalStyle`
   @font-face {
@@ -53,20 +55,17 @@ const Footer = styled.footer`
   }
 `;
 
-interface UserLocationObject {
-  latitude: Number;
-  longitude: Number;
-};
+const App = ({history}:any) => {
 
-export type SetLocationFunction = (geoUserLocation: UserLocationObject) => void;
-
-const App = () => {
-
-  const [userLocation, changeUserLocation] = useState({});
+  const [userLocation, changeUserLocation] = useState<UserLocationObject>({});
 
   const setUserLocation: SetLocationFunction = (geoUserLocation) => changeUserLocation(geoUserLocation);
 
-  console.log(userLocation);
+  useEffect(() => {
+    if(Object.keys(userLocation).length != 0) {
+      history.push("/weather");
+    }
+  }, [userLocation]);
 
   return (
     <>
@@ -74,10 +73,7 @@ const App = () => {
       <HeaderLink href="https://sw-weather.netlify.app">weather app</HeaderLink>
       <Switch>
         <Route exact path="/" render={() => <LandingPage setUserLocation={setUserLocation}/>} />
-        {
-          // użyj redirecta na /weather => if userLocation jest na miejscu
-        }
-        <Route exact path="/weather" component={WeatherPage}/>
+        <Route exact path="/weather" render={() => <WeatherPage userLocation={userLocation} />}/>
       </Switch>
       <Footer>
         <a href="https://darksky.net">Powered by DarkSky</a>
@@ -86,4 +82,4 @@ const App = () => {
   )
 }
 
-export default App;
+export default withRouter(App);
